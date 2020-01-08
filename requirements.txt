@@ -1,0 +1,4 @@
+django
+latex   #Maybe move to pylatex - seems to be the better package, but 'latex' package is fast usable right now
+channels
+channels_redis

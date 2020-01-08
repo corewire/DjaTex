@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
+    'backend',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +126,13 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
     'backend/static',
 ]
+
+ASGI_APPLICATION = "DjaTeX.routing.app"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
