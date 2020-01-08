@@ -7,7 +7,8 @@
     <title>This is the new Shit!</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf_viewer.css" integrity="sha256-nvlJy0rIG6//KEsNEGdz5ilsdHyAYvIDx5O6qH7Aatg=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf_viewer.css"
+          integrity="sha256-nvlJy0rIG6//KEsNEGdz5ilsdHyAYvIDx5O6qH7Aatg=" crossorigin="anonymous"/>
     <style type="text/css" media="screen">
         #editor {
             position: absolute;
@@ -22,16 +23,15 @@
         <pre id="editor">
         </pre>
     </div>
-    {% if data %}
-        <div id="viewerContainer" class="col-6">
-            <div id="viewer" class="pdfViewer"></div>
-        </div>
-    {% else %}
-        <p class="col-6">No pdf availible.</p>
-    {% endif %}
+    <div id="viewerContainer" class="col-6">
+        <div id="viewer" class="pdfViewer"></div>
+    </div>
+    <div id="errorContainer" class="col-6"></div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf.js" integrity="sha256-WpyZntIney4QnkFnP2qOwoLJsCTFFpLyi08ZWh/LXPE=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf_viewer.js" integrity="sha256-JW7ackRikw8/UM/hHV6vKaZBYc+t2ZQ77sd3LWR8vh8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf.js"
+        integrity="sha256-WpyZntIney4QnkFnP2qOwoLJsCTFFpLyi08ZWh/LXPE=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf_viewer.js"
+        integrity="sha256-JW7ackRikw8/UM/hHV6vKaZBYc+t2ZQ77sd3LWR8vh8=" crossorigin="anonymous"></script>
 <script src="{% static "reconnectingWebSocket.min.js" %}"></script>
 <script>
     var socket = new ReconnectingWebSocket(
@@ -59,6 +59,7 @@
     var CMAP_PACKED = true;
     console.log(DATA);
     var container = document.getElementById('viewerContainer');
+    var err_container = document.getElementById('errorContainer');
 
     // (Optionally) enable hyperlinks within PDF files.
     var pdfLinkService = new pdfjsViewer.PDFLinkService();
@@ -76,23 +77,34 @@
     });
 
     socket.onmessage = function (e) {
+        err_container.hidden = true;
+        container.hidden = false;
         console.log("Message received!");
         var data = JSON.parse(e.data);
-        DATA = data['data'];
-        console.log(DATA);
-           // Loading document.
-        var loadingTask = pdfjsLib.getDocument({
-            data: atob(DATA),
-            cMapUrl: CMAP_URL,
-            cMapPacked: CMAP_PACKED,
-        });
-        loadingTask.promise.then(function (pdfDocument) {
-            // Document loaded, specifying document for the viewer and
-            // the (optional) linkService.
-            pdfViewer.setDocument(pdfDocument);
 
-            pdfLinkService.setDocument(pdfDocument, null);
-        });
+        // Check if data is empty or only whitespaces
+        if (!!data['data'].trim()) {
+
+            DATA = data['data'];
+            // Loading document.
+            var loadingTask = pdfjsLib.getDocument({
+                data: atob(DATA),
+                cMapUrl: CMAP_URL,
+                cMapPacked: CMAP_PACKED,
+            });
+            loadingTask.promise.then(function (pdfDocument) {
+                // Document loaded, specifying document for the viewer and
+                // the (optional) linkService.
+                pdfViewer.setDocument(pdfDocument);
+
+                pdfLinkService.setDocument(pdfDocument, null);
+            });
+        } else if (!!data['error'].trim()) {
+            console.log(data['error']);
+            err_container.hidden = false;
+            container.hidden = true;
+            err_container.innerText = data['error'];
+        }
     };
     socket.onclose = function (e) {
         console.error('Sockets gone!');
@@ -148,7 +160,7 @@
 
     ace.require("ace/ext/language_tools");
     var editor = ace.edit("editor");
-    editor.session.setMode("ace/mode/latex");
+    editor.session.setMode("ace/mode/tex");
     editor.setTheme("ace/theme/monokai");
     editor.setOptions({
         enableBasicAutocompletion: true,

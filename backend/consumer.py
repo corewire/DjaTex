@@ -15,18 +15,26 @@ class LatexConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         print(text_data)
+        error_message = ''
         try:
             pdf = build_pdf(text_data)
             pdf.save_to('test.pdf')
             b64_data = base64.b64encode(pdf.data)
         except LatexBuildError as e:
+            error_message = ""
             for err in e.get_errors():
-                print(u'Error in {0[filename]}, line {0[line]}: {0[error]}'.format(err))
+                fullcontext = ''
+                for con in err['context']:
+                    fullcontext += con.strip() + ' '
+                error_message += u'Error in line {0[line]}: '.format(err) + fullcontext + '\n'
                 # also print one line of context
-                print(u'    {}'.format(err['context'][1]))
-                context = ""
+                # print(u'    {}'.format(err['context'][1]))
+            b64_data = b''
+
         # convert to base64
         context = {
-            'data': b64_data.decode("UTF-8")
+            'data': b64_data.decode("UTF-8"),
+            'error': error_message
         }
+
         self.send(text_data=json.dumps(context))
