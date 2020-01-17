@@ -17,16 +17,17 @@
         }
     </style>
 </head>
-<body class="container-fluid">
-<div class="row">
+<body class="container-fluid mh-100 d-inline-block">
+<div class="row" style="height: 95vh;">
     <div class="col-6">
-        <pre id="editor">
-        </pre>
+        <div id="editor" class="w-100 h-100">Welcome!</div>
     </div>
-    <div id="viewerContainer" class="col-6">
-        <div id="viewer" class="pdfViewer"></div>
+    <div class="row col-6">
+        <div id="viewerContainer" class="col-12">
+            <div id="viewer" class="pdfViewer"></div>
+        </div>
+        <div id="errorContainer" class="col-12"></div>
     </div>
-    <div id="errorContainer" class="col-6"></div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf.js"
         integrity="sha256-WpyZntIney4QnkFnP2qOwoLJsCTFFpLyi08ZWh/LXPE=" crossorigin="anonymous"></script>

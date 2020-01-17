@@ -18,6 +18,8 @@ media
 # in your Git repository. Update and uncomment the following line accordingly.
 backend/static/
 !backend/static/latex.js
+!backend/static/reconnectingWebSocket.min.js
+
 ### Django.Python Stack ###
 # Byte-compiled / optimized / DLL files
 *.py[cod]
